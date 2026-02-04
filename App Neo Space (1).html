@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+
+<style id="webmakerstyle">
+
+</style>
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VnExpress 1:1 - SME Edition</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,300,0,0" />
+    <style>
+        /* CSS VARIABLES & RESET */
+        :root { --vne-red: #9f224e; --vne-gray: #757575; --vne-border: #e5e5e5; --vne-text: #333; }
+        body { margin: 0; font-family: arial, sans-serif; color: var(--vne-text); line-height: 1.6; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 15px; }
+        
+        /* HEADER & NAVIGATION */
+        .header-top { border-bottom: 1px solid var(--vne-border); padding: 10px 0; }
+        .vne-nav { border-top: 1px solid var(--vne-border); background: #fff; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .nav-list { display: flex; list-style: none; margin: 0; padding: 0; height: 44px; align-items: center; overflow-x: auto; }
+        .nav-item { padding: 0 12px; font-size: 14px; cursor: pointer; font-weight: bold; white-space: nowrap; }
+        .nav-item:hover { color: var(--vne-red); }
+
+        /* FILTER BAR */
+        .filter-bar { background: #f7f7f7; border-bottom: 1px solid var(--vne-border); padding: 8px 0; }
+        .filter-list { display: flex; gap: 15px; font-size: 13px; overflow-x: auto; scrollbar-width: none; }
+        .filter-tag { cursor: pointer; padding: 4px 12px; border-radius: 4px; transition: 0.2s; white-space: nowrap; border: 1px solid transparent; }
+        .filter-tag.selected { background: var(--vne-red); color: #fff; }
+
+        /* MAIN LAYOUT */
+        .main-content { display: flex; gap: 30px; margin-top: 20px; }
+        .col-left { width: 68%; }
+        .col-right { width: 32%; border-left: 1px solid var(--vne-border); padding-left: 20px; }
+
+        /* READING MODE OVERLAY */
+        #reading-mode { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 2000; display: none; overflow-y: auto; padding: 40px 0; animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .reader-container { max-width: 700px; margin: 0 auto; padding: 0 20px; }
+        .reader-body { font-size: 19px; line-height: 1.8; margin-top: 20px; }
+        
+        .material-symbols-outlined { font-size: 22px; vertical-align: middle; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<header class="header-top">
+    <div class="container" style="display:flex; justify-content:space-between; align-items:center;">
+        <div style="display:flex; align-items:center; gap:15px; font-size:13px; color:var(--vne-gray);">
+            <img src="https://s1.vnecdn.net/vnexpress/restruct/i/v873/v2_2019/pc/graphics/logo.svg" height="30" alt="logo">
+            <span id="current-time"></span>
+        </div>
+        <div style="display:flex; gap:20px;">
+            <span class="material-symbols-outlined">search</span>
+            <span class="material-symbols-outlined">account_circle</span>
+        </div>
+    </div>
+</header>
+
+<nav class="vne-nav">
+    <div class="container">
+        <div class="nav-list" id="main-nav">
+            <div class="nav-item"><span class="material-symbols-outlined">home</span></div>
+            <div class="nav-item">Thời sự</div>
+            <div class="nav-item">Góc nhìn</div>
+            <div class="nav-item">Thế giới</div>
+            <div class="nav-item">Kinh doanh</div>
+            <div class="nav-item">Giải trí</div>
+            <div class="nav-item">Thể thao</div>
+            <div class="nav-item">Pháp luật</div>
+            <div class="nav-item">Giáo dục</div>
+            <div class="nav-item">Sức khỏe</div>
+            <div class="nav-item">Đời sống</div>
+        </div>
+    </div>
+</nav>
+
+<div class="filter-bar">
+    <div class="container">
+        <div class="filter-list" id="filter-container">
+            <span class="filter-tag selected" onclick="filterNews('Tất cả', this)">Tất cả</span>
+            <span class="filter-tag" onclick="filterNews('Thời sự', this)">Thời sự</span>
+            <span class="filter-tag" onclick="filterNews('Thế giới', this)">Thế giới</span>
+            <span class="filter-tag" onclick="filterNews('Kinh doanh', this)">Kinh doanh</span>
+            <span class="filter-tag" onclick="filterNews('Giải trí', this)">Giải trí</span>
+            <span class="filter-tag" onclick="filterNews('Sức khỏe', this)">Sức khỏe</span>
+        </div>
+    </div>
+</div>
+
+<main class="container">
+    <div class="main-content">
+        <div class="col-left">
+            <div id="spotlight-area"></div>
+            <div id="category-box-area" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; border-top: 2px solid #eee; padding-top: 20px;"></div>
+            <div id="news-feed"></div>
+        </div>
+        <div class="col-right" id="side-feed"></div>
+    </div>
+</main>
+
+<div id="reading-mode">
+    <div class="reader-container">
+        <div style="display:flex; justify-content:space-between; border-bottom:1px solid #eee; padding-bottom:10px; position: sticky; top: 0; background: #fff;">
+            <span style="color:var(--vne-red); cursor:pointer; font-weight:bold; display:flex; align-items:center; gap:5px;" onclick="closeReader()">
+                <span class="material-symbols-outlined">arrow_back</span> Đóng
+            </span>
+            <div>
+                <button onclick="changeFS(2)" style="padding:5px 10px;">A+</button>
+                <button onclick="changeFS(-2)" style="padding:5px 10px;">A-</button>
+            </div>
+        </div>
+        <h1 id="r-title" style="font-size:32px; margin:25px 0; font-family: serif;"></h1>
+        <div id="r-body" class="reader-body"></div>
+    </div>
+</div>
+
+<script>
+/* Dán PHẦN 2 (Dữ liệu) ngay dưới dòng này */
+  const MOCK_DB = [
+    { id: 1, cat: "Thời sự", title: "Đề xuất xây thêm 2 cầu vượt tại Tân Sơn Nhất", desc: "Giảm ùn tắc cửa ngõ sân bay bằng cầu vượt thép mới tại nút giao Lăng Cha Cả và Trường Sơn.", time: "1 giờ trước" },
+    { id: 2, cat: "Kinh doanh", title: "Giá vàng nhẫn vọt lên sát mốc 78 triệu đồng", desc: "Mỗi lượng vàng nhẫn lập đỉnh cao mới sáng nay trong bối cảnh giá thế giới biến động mạnh.", time: "42 phút trước" },
+    { id: 3, cat: "Thế giới", title: "Bầu cử Mỹ 2026: Chiến dịch rầm rộ tại bang chiến địa", desc: "Các ứng viên đổ hàng trăm triệu USD vào quảng cáo chính trị nhằm thu hút cử tri trung lập.", time: "2 giờ trước" },
+    { id: 4, cat: "Thể thao", title: "HLV Kim Sang-sik triệu tập 3 tân binh", desc: "Thử nghiệm gương mặt trẻ cho đội tuyển quốc gia nhằm chuẩn bị cho vòng loại World Cup.", time: "3 giờ trước" },
+    { id: 5, cat: "Giải trí", title: "Phim Việt đạt doanh thu 200 tỷ đồng", desc: "Tác phẩm gia đình gây sốt phòng vé sau 2 tuần công chiếu nhờ kịch bản chạm tới cảm xúc.", time: "5 giờ trước" },
+    { id: 6, cat: "Sức khỏe", title: "Sốt xuất huyết tăng nhanh tại phía Nam", desc: "Cảnh báo dịch bùng phát mạnh tại các ổ dịch cũ khi mùa mưa bắt đầu kéo dài.", time: "6 giờ trước" },
+    { id: 7, cat: "Kinh doanh", title: "Robot AI tham gia sản xuất bán dẫn tại VN", desc: "Tăng 40% năng suất nhờ tự động hóa thông minh trong các khâu kiểm định chất lượng.", time: "7 giờ trước" },
+    { id: 8, cat: "Thời sự", title: "Phương án tuyển sinh đại học năm 2026", desc: "Ưu tiên bài thi đánh giá năng lực và chứng chỉ ngoại ngữ quốc tế trong xét tuyển sớm.", time: "8 giờ trước" },
+    { id: 11, cat: "Thời sự", title: "TP HCM khởi công tuyến metro số 2 vào quý tới", desc: "Dự án đi qua 6 quận với tổng vốn đầu tư hơn 47.000 tỷ đồng đã hoàn tất giải phóng mặt bằng.", time: "12 giờ trước" },
+    { id: 12, cat: "Kinh doanh", title: "Lãi suất ngân hàng đồng loạt giảm dưới 6%", desc: "Nhiều ngân hàng điều chỉnh biểu lãi suất huy động về mức thấp kỷ lục để hỗ trợ doanh nghiệp.", time: "13 giờ trước" },
+    { id: 13, cat: "Thế giới", title: "Đông Nam Á đối mặt với đợt nắng nóng kỷ lục", desc: "Nhiệt độ tại nhiều quốc gia vượt ngưỡng 45 độ C gây báo động về sức khỏe và điện năng.", time: "14 giờ trước" },
+    { id: 19, cat: "Sức khỏe", title: "Căn hộ mini 'siêu nhỏ' bùng nổ tại đô thị", desc: "Giải pháp nhà ở cho người độc thân nhưng tiềm ẩn nhiều rủi ro về an toàn cháy nổ.", time: "20 giờ trước" },
+    { id: 30, cat: "Giải trí", title: "Ứng dụng AI giúp chẩn đoán ung thư sớm 90%", desc: "Hệ thống phân tích hình ảnh X-quang với độ chính xác vượt trội đã được áp dụng thử nghiệm.", time: "2 ngày trước" },
+    { id: 49, cat: "Sức khỏe", title: "Văn hóa thưởng thức cà phê của người Việt", desc: "Không chỉ là thức uống mà còn là một nghệ thuật giao tiếp đặc trưng của người dân thành thị.", time: "5 ngày trước" },
+    { id: 50, cat: "Thế giới", title: "Pin muối biển: Giải pháp năng lượng tương lai", desc: "Công nghệ mới giúp lưu trữ năng lượng rẻ hơn và thân thiện với môi trường hơn pin Lithium.", time: "5 ngày trước" }
+];
+/* Dán PHẦN 3 (Xử lý giao diện) ngay dưới dòng này */
+  const VNE_Display = {
+    // Render tin Tiêu điểm lớn nhất [cite: 85]
+    renderSpotlight: function(article) {
+        const area = document.getElementById('spotlight-area');
+        if(!area || !article) return;
+        area.innerHTML = `
+            <article onclick="openReader(${article.id})" style="cursor:pointer; margin-bottom: 30px;">
+                <div style="display: flex; gap: 20px; align-items: flex-start;">
+                    <img src="https://picsum.photos/seed/${article.id}/600/360" style="width:65%; height:350px; border-radius:4px; object-fit:cover;">
+                    <div style="width:35%;">
+                        <h1 style="font-size:26px; line-height:1.2; margin:0 0 15px 0; font-family:serif; font-weight:700;">${article.title}</h1>
+                        <p style="color:#444; font-size:15px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical;">${article.desc}</p>
+                        <span style="color:var(--vne-red); font-weight:bold; font-size:12px; margin-top:15px; display:block;">${article.cat.toUpperCase()}</span>
+                    </div>
+                </div>
+            </article>`;
+    },
+
+    // Render 2 Box chuyên mục phụ cạnh nhau
+    renderCategoryBoxes: function() {
+        const area = document.getElementById('category-box-area');
+        if(!area) return;
+        const biz = MOCK_DB.find(n => n.cat === "Kinh doanh") || MOCK_DB[1];
+        const world = MOCK_DB.find(n => n.cat === "Thế giới") || MOCK_DB[2];
+        
+        area.innerHTML = `
+            <div onclick="openReader(${biz.id})" style="cursor:pointer; border-right: 1px solid #eee; padding-right:15px;">
+                <h2 style="font-size:14px; color:var(--vne-red); border-bottom:2px solid var(--vne-red); display:inline-block; margin-bottom:12px; text-transform:uppercase;">Kinh doanh</h2>
+                <img src="https://picsum.photos/seed/${biz.id+10}/300/180" style="width:100%; height:160px; object-fit:cover; margin-bottom:10px;">
+                <h3 style="font-size:16px; font-weight:700; line-height:1.4;">${biz.title}</h3>
+            </div>
+            <div onclick="openReader(${world.id})" style="cursor:pointer; padding-left:5px;">
+                <h2 style="font-size:14px; color:var(--vne-red); border-bottom:2px solid var(--vne-red); display:inline-block; margin-bottom:12px; text-transform:uppercase;">Thế giới</h2>
+                <img src="https://picsum.photos/seed/${world.id+20}/300/180" style="width:100%; height:160px; object-fit:cover; margin-bottom:10px;">
+                <h3 style="font-size:16px; font-weight:700; line-height:1.4;">${world.title}</h3>
+            </div>`;
+    },
+
+    // Render luồng tin danh sách phía dưới [cite: 94]
+    renderFeed: function(filter = 'Tất cả') {
+        const feed = document.getElementById('news-feed');
+        if(!feed) return;
+        
+        const filtered = filter === 'Tất cả' ? MOCK_DB.slice(3, 15) : MOCK_DB.filter(n => n.cat === filter);
+
+        let html = `<h3 style="border-top:1px solid #eee; padding-top:15px; margin-top:20px; font-size:14px; color:#757575; text-transform:uppercase;">Mới cập nhật</h3>`;
+        if(filtered.length === 0) html += `<p>Không tìm thấy tin nào trong mục này.</p>`;
+
+        filtered.forEach(item => {
+            html += `
+                <div onclick="openReader(${item.id})" style="display:flex; gap:20px; padding:18px 0; border-bottom:1px solid #eee; cursor:pointer;">
+                    <img src="https://picsum.photos/seed/${item.id}/200/120" style="width:180px; height:110px; object-fit:cover; border-radius:2px;">
+                    <div style="flex:1;">
+                        <h3 style="font-size:17px; font-weight:700; margin:0 0 8px 0;">${item.title}</h3>
+                        <p style="font-size:14px; color:#555; line-height:1.5;">${item.desc}</p>
+                        <span style="font-size:11px; color:#999; display:block; margin-top:5px;">${item.cat} · ${item.time}</span>
+                    </div>
+                </div>`;
+        });
+        feed.innerHTML = html;
+    },
+
+    // Render cột phải: Tin đọc nhiều [cite: 93]
+    renderSide: function() {
+        const side = document.getElementById('side-feed');
+        if(!side) return;
+        let html = `<h3 style="color:var(--vne-red); border-bottom:2px solid var(--vne-red); display:inline-block; padding-bottom:5px; margin-bottom:15px; font-size:14px; text-transform:uppercase;">Tin đọc nhiều</h3>`;
+        
+        MOCK_DB.slice(0, 7).forEach((item, index) => {
+            html += `
+                <div onclick="openReader(${item.id})" style="display:flex; gap:15px; padding:12px 0; border-bottom:1px dashed #ddd; cursor:pointer;">
+                    <span style="font-size:22px; color:#ccc; font-weight:bold; min-width:25px;">${index + 1}</span>
+                    <h4 style="font-size:14px; font-weight:600; line-height:1.4; margin:0;">${item.title}</h4>
+                </div>`;
+        });
+        side.innerHTML = html;
+    }
+};
+/* Dán PHẦN 4 (Khởi chạy) ngay dưới dòng này */
+  // Xử lý bộ lọc chuyên mục [cite: 57]
+function filterNews(cat, element) {
+    const spotlight = document.getElementById('spotlight-area');
+    const boxArea = document.getElementById('category-box-area');
+    
+    // Nếu lọc theo mục cụ thể thì ẩn Spotlight để nhìn danh sách rõ hơn
+    if(cat !== 'Tất cả') {
+        if(spotlight) spotlight.style.display = 'none';
+        if(boxArea) boxArea.style.display = 'none';
+    } else {
+        if(spotlight) spotlight.style.display = 'block';
+        if(boxArea) boxArea.style.display = 'grid';
+    }
+    
+    document.querySelectorAll('.filter-tag').forEach(el => el.classList.remove('selected'));
+    if(element) element.classList.add('selected');
+    VNE_Display.renderFeed(cat);
+}
+
+// Chế độ đọc báo 1:1 [cite: 93]
+function openReader(id) {
+    const article = MOCK_DB.find(n => n.id === id);
+    if(!article) return;
+    document.getElementById('r-title').innerText = article.title;
+    document.getElementById('r-body').innerHTML = `
+        <p style="font-size:20px; font-weight:bold; margin-bottom:20px; color:#333; line-height:1.4;">${article.desc}</p>
+        <p>HÀ NỘI - Theo dữ liệu cập nhật từ hệ thống SME, đây là bài viết mô phỏng nội dung chi tiết của VnExpress. Bài báo cung cấp các góc nhìn đa chiều về vấn đề ${article.cat.toLowerCase()} đang được quan tâm.</p>
+        <img src="https://picsum.photos/seed/${id}/800/500" style="width:100%; border-radius:4px; margin:20px 0;">
+        <p>Các chuyên gia nhận định rằng việc triển khai các giải pháp công nghệ sẽ giúp tối ưu hóa hiệu quả và mang lại giá trị bền vững cho cộng đồng.</p>
+    `;
+    document.getElementById('reading-mode').style.display = 'block';
+    document.body.style.overflow = 'hidden'; // Chặn cuộn trang chính [cite: 55]
+}
+
+function closeReader() { 
+    document.getElementById('reading-mode').style.display = 'none'; 
+    document.body.style.overflow = 'auto';
+}
+
+let currentFontSize = 19;
+function changeFS(delta) { 
+    currentFontSize += delta; 
+    document.getElementById('r-body').style.fontSize = currentFontSize + 'px'; 
+}
+
+// KHỞI TẠO HỆ THỐNG [cite: 74, 101]
+window.addEventListener('DOMContentLoaded', () => {
+    const now = new Date();
+    const days = ["Chủ nhật", "Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy"];
+    const timeText = `${days[now.getDay()]}, ${now.getDate()}/${now.getMonth()+1}/${now.getFullYear()}`;
+    document.getElementById('current-time').innerText = timeText;
+    
+    // Render các lớp giao diện [cite: 85]
+    VNE_Display.renderSpotlight(MOCK_DB[0]);
+    VNE_Display.renderCategoryBoxes();
+    VNE_Display.renderFeed();
+    VNE_Display.renderSide();
+});
+</script>
+</body>
+</html>
+
+
+</body>
+</html>
